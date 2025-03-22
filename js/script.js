@@ -24,15 +24,39 @@ const strains = [
     price: "$22/g",
     deal: "Buy 1g get 1 free",
     seenCount: 0
+  },
+  {
+    id: 3,
+    name: "OG Kush",
+    image: "https://images.unsplash.com/photo-1617191518007-cc219b41d5a9",
+    about: "Heavy indica with relaxing effects",
+    likes: ["Sleepy", "Hungry", "Relaxed"],
+    dislikes: ["Couch-lock", "Dry mouth"],
+    terpenes: ["Linalool", "Humulene"],
+    rating: 4.6,
+    price: "$30/g",
+    deal: "Buy 3.5g, get a pre-roll",
+    seenCount: 0
+  },
+  {
+    id: 4,
+    name: "Pineapple Express",
+    image: "https://images.unsplash.com/photo-1617957747486-0f11e370a760",
+    about: "Sativa-dominant strain with fruity flavor",
+    likes: ["Happy", "Talkative", "Energetic"],
+    dislikes: ["Dry eyes"],
+    terpenes: ["Caryophyllene", "Limonene"],
+    rating: 4.8,
+    price: "$27/g",
+    deal: "Free sample with first order",
+    seenCount: 0
   }
 ];
 
 let favorites = [];
-let lineup = [...strains]; // Clone the original strain list
-let currentIndex = 0;
-
-// Shuffle lineup randomly once at start
+let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
+let currentIndex = 0;
 
 function loadStrainCard(strain) {
   const swipeArea = document.getElementById("swipe-area");
@@ -69,6 +93,11 @@ function swipe(direction) {
 
   const strain = lineup[currentIndex];
 
+  if (direction === "up") {
+    showFavorites();
+    return;
+  }
+
   card.style.transform =
     direction === "left"
       ? "translateX(-100%) rotate(-15deg)"
@@ -78,28 +107,65 @@ function swipe(direction) {
     card.style.transform = "none";
 
     if (direction === "right") {
-      // LIKE
       favorites.push(strain);
-    } else {
-      // DISLIKE
+    } else if (direction === "left") {
       strain.seenCount += 1;
-
-      // 70% chance it’s removed from pool, 30% chance added back
       if (Math.random() < 0.3) {
         lineup.push(strain);
       }
     }
 
-    // Remove from current lineup
     lineup.splice(currentIndex, 1);
-
-    // Show next
     showNextStrain();
   }, 300);
 }
 
+function showFavorites() {
+  const favView = document.getElementById("favorites-view");
+  const favList = document.getElementById("favorites-list");
+
+  favList.innerHTML = "";
+
+  if (favorites.length === 0) {
+    favList.innerHTML = "<p>No favorites yet!</p>";
+  } else {
+    favorites.forEach((strain) => {
+      const item = document.createElement("div");
+      item.classList.add("favorite-strain");
+      item.innerHTML = `
+        <h4>${strain.name}</h4>
+        <div class="details hidden">
+          <p><strong>About:</strong> ${strain.about}</p>
+          <p><strong>Likes:</strong> ${strain.likes.join(", ")}</p>
+          <p><strong>Dislikes:</strong> ${strain.dislikes.join(", ")}</p>
+          <p><strong>Terpenes:</strong> ${strain.terpenes.join(", ")}</p>
+          <p><strong>Rating:</strong> ${strain.rating}</p>
+          <p><strong>Price:</strong> ${strain.price}</p>
+          <p><strong>Deal:</strong> ${strain.deal}</p>
+        </div>
+      `;
+
+      item.addEventListener("click", () => {
+        item.classList.toggle("open");
+        const details = item.querySelector(".details");
+        details.classList.toggle("hidden");
+      });
+
+      favList.appendChild(item);
+    });
+  }
+
+  favView.classList.remove("hidden");
+}
+
+// Keyboard test swipes (for desktop debugging)
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowRight") swipe("right");
+  if (e.key === "ArrowLeft") swipe("left");
+  if (e.key === "ArrowUp") swipe("up");
+});
+
 document.getElementById("swipeLeft").addEventListener("click", () => swipe("left"));
 document.getElementById("swipeRight").addEventListener("click", () => swipe("right"));
 
-// Load the first strain
 showNextStrain();
