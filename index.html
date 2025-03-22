@@ -9,11 +9,12 @@
 <body>
   <div class="game-container">
     <div class="phone-frame">
-      <div id="swipe-area">
-        <!-- Strain card will go here -->
-      </div>
+      <div id="swipe-area"></div>
 
-      <!-- FAVORITES VIEW -->
+      <!-- Current Profile View -->
+      <div id="profile-view" class="hidden"></div>
+
+      <!-- Favorites List -->
       <div id="favorites-view" class="hidden">
         <h3>Your Favorites</h3>
         <div id="favorites-list"></div>
@@ -23,8 +24,11 @@
     <div class="controls">
       <button id="swipeLeft">Swipe Left</button>
       <button id="swipeRight">Swipe Right</button>
+      <button id="viewProfile">View Profile</button>
+      <button id="viewFavorites">Favorites</button>
     </div>
   </div>
+
   <script src="js/script.js"></script>
 </body>
 </html>

@@ -2,10 +2,10 @@ const strains = [
   {
     id: 1,
     name: "Green Crack",
-    image: "https://images.unsplash.com/photo-1616530940355-b53f2e7c9efc",
-    about: "Energizing daytime sativa",
-    likes: ["Uplifting", "Focused", "Creative"],
-    dislikes: ["Dry mouth", "Paranoia"],
+    image: "https://images.unsplash.com/photo-1628115803933-f7f3d35a5c11",
+    about: "Energizing sativa great for daytime use.",
+    likes: ["Uplifting", "Focused", "Happy"],
+    dislikes: ["Dry Mouth", "Paranoia"],
     terpenes: ["Limonene", "Pinene"],
     rating: 4.7,
     price: "$25/g",
@@ -16,11 +16,11 @@ const strains = [
     id: 2,
     name: "Blue Dream",
     image: "https://images.unsplash.com/photo-1601612624377-47a7b67443b5",
-    about: "Balanced hybrid with calming effects",
-    likes: ["Relaxed", "Happy", "Pain Relief"],
-    dislikes: ["Dry eyes"],
+    about: "Popular hybrid offering a gentle cerebral high.",
+    likes: ["Relaxed", "Creative", "Euphoric"],
+    dislikes: ["Dry Eyes"],
     terpenes: ["Myrcene", "Caryophyllene"],
-    rating: 4.5,
+    rating: 4.6,
     price: "$22/g",
     deal: "Buy 1g get 1 free",
     seenCount: 0
@@ -28,27 +28,40 @@ const strains = [
   {
     id: 3,
     name: "OG Kush",
-    image: "https://images.unsplash.com/photo-1617191518007-cc219b41d5a9",
-    about: "Heavy indica with relaxing effects",
-    likes: ["Sleepy", "Hungry", "Relaxed"],
-    dislikes: ["Couch-lock", "Dry mouth"],
-    terpenes: ["Linalool", "Humulene"],
-    rating: 4.6,
-    price: "$30/g",
-    deal: "Buy 3.5g, get a pre-roll",
+    image: "https://images.unsplash.com/photo-1627958826796-eebc76ee0c3e",
+    about: "Indica dominant strain for deep relaxation.",
+    likes: ["Sleepy", "Calm", "Pain Relief"],
+    dislikes: ["Dizziness"],
+    terpenes: ["Humulene", "Linalool"],
+    rating: 4.8,
+    price: "$28/g",
+    deal: "Free pre-roll with 3.5g",
     seenCount: 0
   },
   {
     id: 4,
     name: "Pineapple Express",
     image: "https://images.unsplash.com/photo-1617957747486-0f11e370a760",
-    about: "Sativa-dominant strain with fruity flavor",
-    likes: ["Happy", "Talkative", "Energetic"],
-    dislikes: ["Dry eyes"],
-    terpenes: ["Caryophyllene", "Limonene"],
-    rating: 4.8,
+    about: "Fruity sativa great for fun and creativity.",
+    likes: ["Happy", "Energetic", "Giggly"],
+    dislikes: ["Dry Mouth"],
+    terpenes: ["Limonene", "Caryophyllene"],
+    rating: 4.9,
     price: "$27/g",
-    deal: "Free sample with first order",
+    deal: "Free edible sample",
+    seenCount: 0
+  },
+  {
+    id: 5,
+    name: "Northern Lights",
+    image: "https://images.unsplash.com/photo-1612178996754-14698b4b835d",
+    about: "Classic indica for nighttime chill and sleep.",
+    likes: ["Sleepy", "Euphoric", "Calm"],
+    dislikes: ["Dry Eyes", "Lethargy"],
+    terpenes: ["Myrcene", "Limonene"],
+    rating: 4.9,
+    price: "$26/g",
+    deal: "25% off after 8PM",
     seenCount: 0
   }
 ];
@@ -59,19 +72,13 @@ lineup.sort(() => Math.random() - 0.5);
 let currentIndex = 0;
 
 function loadStrainCard(strain) {
-  const swipeArea = document.getElementById("swipe-area");
-  swipeArea.innerHTML = `
+  document.getElementById("swipe-area").innerHTML = `
     <div class="strain-card">
       <img src="${strain.image}" class="strain-image" />
       <div class="strain-info">
         <h2>${strain.name}</h2>
         <p>${strain.about}</p>
-        <p><strong>Likes:</strong> ${strain.likes.join(", ")}</p>
-        <p><strong>Dislikes:</strong> ${strain.dislikes.join(", ")}</p>
-        <p><strong>Terpenes:</strong> ${strain.terpenes.join(", ")}</p>
-        <p><strong>Rating:</strong> ${strain.rating}</p>
-        <p><strong>Price:</strong> ${strain.price}</p>
-        <p><strong>Deal:</strong> ${strain.deal}</p>
+        <p><strong>Tap "View Profile" for more</strong></p>
       </div>
     </div>
   `;
@@ -88,84 +95,69 @@ function showNextStrain() {
 }
 
 function swipe(direction) {
-  const card = document.querySelector(".strain-card");
-  if (!card || lineup.length === 0) return;
-
   const strain = lineup[currentIndex];
+  if (!strain) return;
 
-  if (direction === "up") {
-    showFavorites();
-    return;
+  if (direction === "right") {
+    favorites.push(strain);
+  } else if (direction === "left") {
+    strain.seenCount += 1;
+    if (Math.random() < 0.3) {
+      lineup.push(strain); // rare reappearance
+    }
   }
 
-  card.style.transform =
-    direction === "left"
-      ? "translateX(-100%) rotate(-15deg)"
-      : "translateX(100%) rotate(15deg)";
+  lineup.splice(currentIndex, 1);
+  showNextStrain();
+}
 
-  setTimeout(() => {
-    card.style.transform = "none";
+function showCurrentProfile() {
+  const strain = lineup[currentIndex];
+  if (!strain) return;
 
-    if (direction === "right") {
-      favorites.push(strain);
-    } else if (direction === "left") {
-      strain.seenCount += 1;
-      if (Math.random() < 0.3) {
-        lineup.push(strain);
-      }
-    }
-
-    lineup.splice(currentIndex, 1);
-    showNextStrain();
-  }, 300);
+  const view = document.getElementById("profile-view");
+  view.innerHTML = `
+    <div class="profile-strain">
+      <h2>${strain.name}</h2>
+      <img src="${strain.image}" class="strain-image" />
+      <p>${strain.about}</p>
+      <p><strong>Likes:</strong> ${strain.likes.join(", ")}</p>
+      <p><strong>Dislikes:</strong> ${strain.dislikes.join(", ")}</p>
+      <p><strong>Terpenes:</strong> ${strain.terpenes.join(", ")}</p>
+      <p><strong>Rating:</strong> ${strain.rating}</p>
+      <p><strong>Price:</strong> ${strain.price}</p>
+      <p><strong>Deal:</strong> ${strain.deal}</p>
+      <button onclick="document.getElementById('profile-view').classList.add('hidden')">Close</button>
+    </div>
+  `;
+  view.classList.remove("hidden");
 }
 
 function showFavorites() {
-  const favView = document.getElementById("favorites-view");
-  const favList = document.getElementById("favorites-list");
-
-  favList.innerHTML = "";
+  const view = document.getElementById("favorites-view");
+  const list = document.getElementById("favorites-list");
+  list.innerHTML = "";
 
   if (favorites.length === 0) {
-    favList.innerHTML = "<p>No favorites yet!</p>";
+    list.innerHTML = "<p>No favorites yet!</p>";
   } else {
     favorites.forEach((strain) => {
-      const item = document.createElement("div");
-      item.classList.add("favorite-strain");
-      item.innerHTML = `
-        <h4>${strain.name}</h4>
-        <div class="details hidden">
-          <p><strong>About:</strong> ${strain.about}</p>
-          <p><strong>Likes:</strong> ${strain.likes.join(", ")}</p>
-          <p><strong>Dislikes:</strong> ${strain.dislikes.join(", ")}</p>
-          <p><strong>Terpenes:</strong> ${strain.terpenes.join(", ")}</p>
-          <p><strong>Rating:</strong> ${strain.rating}</p>
-          <p><strong>Price:</strong> ${strain.price}</p>
-          <p><strong>Deal:</strong> ${strain.deal}</p>
+      list.innerHTML += `
+        <div class="favorite-strain">
+          <h4>${strain.name}</h4>
+          <p>${strain.about}</p>
+          <small>Price: ${strain.price} | Rating: ${strain.rating}</small>
         </div>
       `;
-
-      item.addEventListener("click", () => {
-        item.classList.toggle("open");
-        const details = item.querySelector(".details");
-        details.classList.toggle("hidden");
-      });
-
-      favList.appendChild(item);
     });
   }
 
-  favView.classList.remove("hidden");
+  view.classList.remove("hidden");
 }
-
-// Keyboard test swipes (for desktop debugging)
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowRight") swipe("right");
-  if (e.key === "ArrowLeft") swipe("left");
-  if (e.key === "ArrowUp") swipe("up");
-});
 
 document.getElementById("swipeLeft").addEventListener("click", () => swipe("left"));
 document.getElementById("swipeRight").addEventListener("click", () => swipe("right"));
+document.getElementById("viewProfile").addEventListener("click", showCurrentProfile);
+document.getElementById("viewFavorites").addEventListener("click", showFavorites);
 
 showNextStrain();
