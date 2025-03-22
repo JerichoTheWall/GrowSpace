@@ -88,12 +88,12 @@ const strains = [
   }
 ];
 
-// Global arrays for the swipe lineup and favorites.
+// Global arrays for swipe lineup and favorites.
 let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
 
-// Load the current strain's card (always using the first strain in the lineup).
+// Load the current strain's card (shows minimal info).
 function loadStrainCard() {
   if (lineup.length === 0) {
     document.getElementById("swipe-area").innerHTML = "<h2>No more strains for now.</h2>";
@@ -112,7 +112,7 @@ function loadStrainCard() {
   `;
 }
 
-// If the lineup becomes empty, reinitialize it with strains not already in favorites.
+// If lineup becomes empty, repopulate it with strains not yet favorited.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -134,25 +134,45 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: adds the current strain to favorites and removes it.
-// - Left swipe: rotates the current strain to the end of the lineup.
+// - Right swipe: adds the current strain to favorites (if not already) and removes it.
+// - Left swipe: moves the current strain to the end of the lineup.
 function swipe(direction) {
   if (lineup.length === 0) return;
   const strain = lineup[0];
+  
   if (direction === "right") {
     if (!favorites.find(s => s.id === strain.id)) {
       favorites.push(strain);
     }
-    lineup.shift(); // remove it permanently
+    lineup.shift(); // remove permanently
   } else if (direction === "left") {
-    lineup.push(strain); // move to end
+    lineup.push(strain); // re-add to the end
     lineup.shift(); // remove from front
   }
+  
   showNextStrain();
 }
 
+// Determine the Buy URL based on the strain name.
+function getBuyURL(strainName) {
+  switch(strainName) {
+    case "OG Kush":
+      return "https://dank-house.com/menu/search/?q=OG+kush";
+    case "Pineapple Express":
+      return "https://dank-house.com/menu/search/?q=Pineapple";
+    case "Blue Dream":
+      return "https://dank-house.com/menu/search/?q=Blue+Dream";
+    case "Green Crack":
+      return "https://dank-house.com/menu/search/?q=Green+crack";
+    case "Northern Lights":
+      return "https://dank-house.com/menu/search/?q=Northern+lights";
+    default:
+      return "#";
+  }
+}
+
 // Show the full profile view for a strain.
-// If strainArg is provided, use it; otherwise, use the current strain.
+// If strainArg is provided (from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
   if (!strain) return;
@@ -162,6 +182,7 @@ function showCurrentProfile(strainArg) {
     strain.currentImageIndex = 0;
   }
   
+  const buyURL = getBuyURL(strain.name);
   const profileView = document.getElementById("profile-view");
   profileView.innerHTML = `
     <div class="profile-strain">
@@ -178,10 +199,14 @@ function showCurrentProfile(strainArg) {
       </div>
       <div class="profile-controls">
         <button id="nextImage">Next Image</button>
+        <a href="${buyURL}" target="_blank"><button>Buy Now</button></a>
         <button onclick="document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
       </div>
     </div>
   `;
+  
+  // If the profile was opened from the favorites view, auto-close favorites.
+  document.getElementById("favorites-view").classList.add("hidden");
   
   profileView.classList.remove("hidden");
   
@@ -192,7 +217,7 @@ function showCurrentProfile(strainArg) {
 }
 
 // Show the favorites list view.
-// Clicking a favorite strain opens its full profile.
+// Clicking a favorite strain opens its full profile and auto-closes the favorites view.
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -209,14 +234,17 @@ function showFavorites() {
         <p>${strain.about}</p>
         <small>Price: ${strain.price} | Rating: ${strain.rating}</small>
       `;
-      div.addEventListener("click", () => showCurrentProfile(strain));
+      // When clicked, show full profile and auto-close favorites.
+      div.addEventListener("click", () => {
+        showCurrentProfile(strain);
+      });
       favList.appendChild(div);
     });
   }
   favView.classList.remove("hidden");
 }
 
-// Attach button event listeners.
+// Attach event listeners to buttons.
 document.getElementById("swipeLeft").addEventListener("click", () => swipe("left"));
 document.getElementById("swipeRight").addEventListener("click", () => swipe("right"));
 document.getElementById("viewProfile").addEventListener("click", () => showCurrentProfile());
