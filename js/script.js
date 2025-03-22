@@ -1,3 +1,4 @@
+// Define 5 strains
 const strains = [
   {
     id: 1,
@@ -66,11 +67,15 @@ const strains = [
   }
 ];
 
+// Global arrays for the lineup and favorites
 let favorites = [];
 let lineup = [...strains];
+
+// Shuffle the lineup
 lineup.sort(() => Math.random() - 0.5);
 let currentIndex = 0;
 
+// Function to load the current strain's card (minimal info)
 function loadStrainCard(strain) {
   document.getElementById("swipe-area").innerHTML = `
     <div class="strain-card">
@@ -84,37 +89,43 @@ function loadStrainCard(strain) {
   `;
 }
 
+// Function to show the next strain from the lineup
 function showNextStrain() {
   if (lineup.length === 0) {
     document.getElementById("swipe-area").innerHTML = "<h2>No more strains for now.</h2>";
     return;
   }
-
   currentIndex = 0;
   loadStrainCard(lineup[currentIndex]);
 }
 
+// Swipe function handling left and right swipes
 function swipe(direction) {
+  if (lineup.length === 0) return;
   const strain = lineup[currentIndex];
-  if (!strain) return;
-
+  
   if (direction === "right") {
-    favorites.push(strain);
+    // Add to favorites if not already there
+    if (!favorites.find(s => s.id === strain.id)) {
+      favorites.push(strain);
+    }
   } else if (direction === "left") {
-    strain.seenCount += 1;
-    if (Math.random() < 0.3) {
-      lineup.push(strain); // rare reappearance
+    // Increment seen count
+    strain.seenCount++;
+    // Re-add the strain at the end if it hasn't been disliked too many times
+    if (strain.seenCount < 3) {
+      lineup.push(strain);
     }
   }
-
+  // Remove the strain from the front of the lineup
   lineup.splice(currentIndex, 1);
   showNextStrain();
 }
 
+// Show the full profile of the current strain
 function showCurrentProfile() {
+  if (lineup.length === 0) return;
   const strain = lineup[currentIndex];
-  if (!strain) return;
-
   const view = document.getElementById("profile-view");
   view.innerHTML = `
     <div class="profile-strain">
@@ -127,17 +138,18 @@ function showCurrentProfile() {
       <p><strong>Rating:</strong> ${strain.rating}</p>
       <p><strong>Price:</strong> ${strain.price}</p>
       <p><strong>Deal:</strong> ${strain.deal}</p>
-      <button onclick="document.getElementById('profile-view').classList.add('hidden')">Close</button>
+      <button onclick="document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
     </div>
   `;
   view.classList.remove("hidden");
 }
 
+// Show a list of favorite strains
 function showFavorites() {
   const view = document.getElementById("favorites-view");
   const list = document.getElementById("favorites-list");
   list.innerHTML = "";
-
+  
   if (favorites.length === 0) {
     list.innerHTML = "<p>No favorites yet!</p>";
   } else {
@@ -151,13 +163,14 @@ function showFavorites() {
       `;
     });
   }
-
   view.classList.remove("hidden");
 }
 
+// Attach button event listeners
 document.getElementById("swipeLeft").addEventListener("click", () => swipe("left"));
 document.getElementById("swipeRight").addEventListener("click", () => swipe("right"));
 document.getElementById("viewProfile").addEventListener("click", showCurrentProfile);
 document.getElementById("viewFavorites").addEventListener("click", showFavorites);
 
+// Initialize by showing the first strain
 showNextStrain();

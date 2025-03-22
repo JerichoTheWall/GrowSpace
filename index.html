@@ -9,15 +9,17 @@
 <body>
   <div class="game-container">
     <div class="phone-frame">
+      <!-- Main swipe area where the current strain appears -->
       <div id="swipe-area"></div>
 
-      <!-- Current Profile View -->
+      <!-- Profile View (hidden by default) -->
       <div id="profile-view" class="hidden"></div>
 
-      <!-- Favorites List -->
+      <!-- Favorites View (hidden by default) -->
       <div id="favorites-view" class="hidden">
         <h3>Your Favorites</h3>
         <div id="favorites-list"></div>
+        <button onclick="document.getElementById('favorites-view').classList.add('hidden')">Close Favorites</button>
       </div>
     </div>
 
