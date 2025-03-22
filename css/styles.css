@@ -74,28 +74,50 @@ button {
   cursor: pointer;
 }
 
-/* Hidden Containers */
+/* Hidden containers */
 .hidden {
   display: none;
 }
 
-#favorites-view, #profile-view {
+/* Profile view (full strain info) */
+#profile-view {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 10;
-  background: #ffffffee;
-  height: 100%;
   width: 100%;
+  height: 100%;
+  background: #ffffffee;
   overflow-y: auto;
   padding: 20px;
   box-sizing: border-box;
+  z-index: 10;
 }
 
-.favorite-strain, .profile-strain {
+.profile-strain {
   background: #f9f9f9;
   border: 2px solid #ccc;
   padding: 15px;
+  border-radius: 12px;
+}
+
+/* Favorites view */
+#favorites-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffffee;
+  overflow-y: auto;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.favorite-strain {
+  background: #f4f4f4;
+  border: 2px solid #ccc;
+  padding: 10px;
   border-radius: 12px;
   margin-bottom: 15px;
 }
