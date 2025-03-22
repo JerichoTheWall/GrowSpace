@@ -1,31 +1,26 @@
-// Sound effects from /sfx/UI folder
-const sfxSoft = new Audio('sfx/UI/soft.wav');
-const sfxHard = new Audio('sfx/UI/hard.wav');
-const sfxClick = new Audio('sfx/UI/click.wav');
-
-// Ensure each sound resets before playing
+/* 
+   Sound Functions:
+   We create a new Audio instance each time so that the swipe buttons do not trigger any click sound.
+   Only the swipe buttons will call playSoft() or playHard(), not playClick().
+*/
 function playSoft() {
-  sfxSoft.pause();
-  sfxSoft.currentTime = 0;
-  sfxSoft.play();
+  new Audio('sfx/UI/soft.wav').play();
 }
 
 function playHard() {
-  sfxHard.pause();
-  sfxHard.currentTime = 0;
-  sfxHard.play();
+  new Audio('sfx/UI/hard.wav').play();
 }
 
 function playClick() {
-  sfxClick.pause();
-  sfxClick.currentTime = 0;
-  // Increase playback rate for a quick click sound
-  sfxClick.playbackRate = 2.0;
-  sfxClick.play();
+  // Create a new Audio instance for a quick click sound.
+  let clickSound = new Audio('sfx/UI/click.wav');
+  // Optionally set a higher playback rate if you want a shorter sound:
+  clickSound.playbackRate = 2.0;
+  clickSound.play();
 }
 
 // Define 5 strains with local image paths.
-// Each strain's images are stored in images/Strain_Name folders (using underscores for spaces).
+// Images are stored in an 'images' folder with subfolders named using underscores.
 const strains = [
   {
     id: 1,
@@ -119,12 +114,12 @@ let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
 
-// Prevent swiping when a profile is open.
+// Helper function to prevent swiping when a profile is open.
 function canSwipe() {
   return document.getElementById("profile-view").classList.contains("hidden");
 }
 
-// Load the current strain's card (minimal info).
+// Load the current strain's minimal card.
 function loadStrainCard() {
   if (lineup.length === 0) {
     document.getElementById("swipe-area").innerHTML = "<h2>No more strains for now.</h2>";
@@ -143,7 +138,7 @@ function loadStrainCard() {
   `;
 }
 
-// If lineup becomes empty, repopulate with strains not yet favorited.
+// If the lineup is empty, repopulate with strains not in favorites.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -168,18 +163,18 @@ function showNextStrain() {
 // - Right swipe: adds current strain to favorites (if not already) and removes it permanently.
 // - Left swipe: moves current strain to the end of the lineup.
 function swipe(direction) {
-  if (!canSwipe()) return; // Do not allow swipe if profile view is open
+  if (!canSwipe()) return; // Do not allow swiping if profile view is open
   if (lineup.length === 0) return;
   const strain = lineup[0];
   
   if (direction === "right") {
-    playSoft();
+    playSoft();  // Play soft sound on right swipe.
     if (!favorites.find(s => s.id === strain.id)) {
       favorites.push(strain);
     }
     lineup.shift();
   } else if (direction === "left") {
-    playHard();
+    playHard();  // Play hard sound on left swipe.
     lineup.push(strain);
     lineup.shift();
   }
@@ -208,11 +203,11 @@ function getBuyURL(strainName) {
 // Show the full profile view for a strain.
 // If strainArg is provided (from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
-  if (!canSwipe()) return; // Prevent if profile is already open
+  if (!canSwipe()) return; // Prevent multiple profiles open.
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
   if (!strain) return;
   
-  // Initialize image index if not already set.
+  // Initialize image index if not set.
   if (typeof strain.currentImageIndex === "undefined") {
     strain.currentImageIndex = 0;
   }
@@ -232,13 +227,17 @@ function showCurrentProfile(strainArg) {
       </div>
       <div class="profile-controls">
         <button id="nextImage">Next Image</button>
-        <a href="${buyURL}" target="_blank"><button onclick="playClick()">Buy Now</button></a>
-        <button onclick="playClick();document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
+        <a href="${buyURL}" target="_blank">
+          <button onclick="playClick()">Buy Now</button>
+        </a>
+        <button onclick="playClick();document.getElementById('profile-view').classList.add('hidden')">
+          Close Profile
+        </button>
       </div>
     </div>
   `;
   
-  // Auto-close the favorites view if open.
+  // Auto-close the favorites view if it is open.
   document.getElementById("favorites-view").classList.add("hidden");
   
   profileView.classList.remove("hidden");
@@ -278,7 +277,8 @@ function showFavorites() {
   favView.classList.remove("hidden");
 }
 
-// Attach event listeners to buttons.
+// Attach event listeners to UI buttons.
+// Note: Swipe left/right buttons do not call playClick()—they only call swipe().
 document.getElementById("swipeLeft").addEventListener("click", () => swipe("left"));
 document.getElementById("swipeRight").addEventListener("click", () => swipe("right"));
 document.getElementById("viewProfile").addEventListener("click", () => { 
