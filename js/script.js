@@ -1,22 +1,31 @@
-// Sound effects (from /sfx/UI folder)
+// Sound effects from /sfx/UI folder
 const sfxSoft = new Audio('sfx/UI/soft.wav');
 const sfxHard = new Audio('sfx/UI/hard.wav');
 const sfxClick = new Audio('sfx/UI/click.wav');
 
+// Ensure each sound resets before playing
 function playSoft() {
+  sfxSoft.pause();
+  sfxSoft.currentTime = 0;
   sfxSoft.play();
 }
 
 function playHard() {
+  sfxHard.pause();
+  sfxHard.currentTime = 0;
   sfxHard.play();
 }
 
 function playClick() {
+  sfxClick.pause();
+  sfxClick.currentTime = 0;
+  // Increase playback rate for a quick click sound
+  sfxClick.playbackRate = 2.0;
   sfxClick.play();
 }
 
 // Define 5 strains with local image paths.
-// Each strain's images are stored in images/Strain_Name folders (spaces replaced by underscores).
+// Each strain's images are stored in images/Strain_Name folders (using underscores for spaces).
 const strains = [
   {
     id: 1,
@@ -115,7 +124,7 @@ function canSwipe() {
   return document.getElementById("profile-view").classList.contains("hidden");
 }
 
-// Load the current strain's card (shows minimal info).
+// Load the current strain's card (minimal info).
 function loadStrainCard() {
   if (lineup.length === 0) {
     document.getElementById("swipe-area").innerHTML = "<h2>No more strains for now.</h2>";
@@ -159,7 +168,7 @@ function showNextStrain() {
 // - Right swipe: adds current strain to favorites (if not already) and removes it permanently.
 // - Left swipe: moves current strain to the end of the lineup.
 function swipe(direction) {
-  if (!canSwipe()) return; // do nothing if profile is open
+  if (!canSwipe()) return; // Do not allow swipe if profile view is open
   if (lineup.length === 0) return;
   const strain = lineup[0];
   
@@ -199,11 +208,11 @@ function getBuyURL(strainName) {
 // Show the full profile view for a strain.
 // If strainArg is provided (from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
-  if (!canSwipe()) return; // ensure that if profile is open, ignore additional swipes
+  if (!canSwipe()) return; // Prevent if profile is already open
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
   if (!strain) return;
   
-  // Initialize image index if not set.
+  // Initialize image index if not already set.
   if (typeof strain.currentImageIndex === "undefined") {
     strain.currentImageIndex = 0;
   }
@@ -229,7 +238,7 @@ function showCurrentProfile(strainArg) {
     </div>
   `;
   
-  // Auto-close the favorites view if it is open.
+  // Auto-close the favorites view if open.
   document.getElementById("favorites-view").classList.add("hidden");
   
   profileView.classList.remove("hidden");
@@ -270,14 +279,8 @@ function showFavorites() {
 }
 
 // Attach event listeners to buttons.
-document.getElementById("swipeLeft").addEventListener("click", () => { 
-  playClick();
-  swipe("left");
-});
-document.getElementById("swipeRight").addEventListener("click", () => { 
-  playClick();
-  swipe("right");
-});
+document.getElementById("swipeLeft").addEventListener("click", () => swipe("left"));
+document.getElementById("swipeRight").addEventListener("click", () => swipe("right"));
 document.getElementById("viewProfile").addEventListener("click", () => { 
   playClick();
   showCurrentProfile();
