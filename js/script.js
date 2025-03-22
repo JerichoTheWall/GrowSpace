@@ -1,3 +1,20 @@
+// Sound effects (from /sfx/UI folder)
+const sfxSoft = new Audio('sfx/UI/soft.wav');
+const sfxHard = new Audio('sfx/UI/hard.wav');
+const sfxClick = new Audio('sfx/UI/click.wav');
+
+function playSoft() {
+  sfxSoft.play();
+}
+
+function playHard() {
+  sfxHard.play();
+}
+
+function playClick() {
+  sfxClick.play();
+}
+
 // Define 5 strains with local image paths.
 // Each strain's images are stored in images/Strain_Name folders (spaces replaced by underscores).
 const strains = [
@@ -88,10 +105,15 @@ const strains = [
   }
 ];
 
-// Global arrays for swipe lineup and favorites.
+// Global arrays for the swipe lineup and favorites.
 let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
+
+// Prevent swiping when a profile is open.
+function canSwipe() {
+  return document.getElementById("profile-view").classList.contains("hidden");
+}
 
 // Load the current strain's card (shows minimal info).
 function loadStrainCard() {
@@ -112,7 +134,7 @@ function loadStrainCard() {
   `;
 }
 
-// If lineup becomes empty, repopulate it with strains not yet favorited.
+// If lineup becomes empty, repopulate with strains not yet favorited.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -134,20 +156,23 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: adds the current strain to favorites (if not already) and removes it.
-// - Left swipe: moves the current strain to the end of the lineup.
+// - Right swipe: adds current strain to favorites (if not already) and removes it permanently.
+// - Left swipe: moves current strain to the end of the lineup.
 function swipe(direction) {
+  if (!canSwipe()) return; // do nothing if profile is open
   if (lineup.length === 0) return;
   const strain = lineup[0];
   
   if (direction === "right") {
+    playSoft();
     if (!favorites.find(s => s.id === strain.id)) {
       favorites.push(strain);
     }
-    lineup.shift(); // remove permanently
+    lineup.shift();
   } else if (direction === "left") {
-    lineup.push(strain); // re-add to the end
-    lineup.shift(); // remove from front
+    playHard();
+    lineup.push(strain);
+    lineup.shift();
   }
   
   showNextStrain();
@@ -174,10 +199,11 @@ function getBuyURL(strainName) {
 // Show the full profile view for a strain.
 // If strainArg is provided (from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
+  if (!canSwipe()) return; // ensure that if profile is open, ignore additional swipes
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
   if (!strain) return;
   
-  // Initialize image index if not already set.
+  // Initialize image index if not set.
   if (typeof strain.currentImageIndex === "undefined") {
     strain.currentImageIndex = 0;
   }
@@ -194,30 +220,29 @@ function showCurrentProfile(strainArg) {
         <p><strong>Dislikes:</strong> ${strain.dislikes.join(", ")}</p>
         <p><strong>Terpenes:</strong> ${strain.terpenes.join(", ")}</p>
         <p><strong>Rating:</strong> ${strain.rating}</p>
-        <p><strong>Price:</strong> ${strain.price}</p>
-        <p><strong>Deal:</strong> ${strain.deal}</p>
       </div>
       <div class="profile-controls">
         <button id="nextImage">Next Image</button>
-        <a href="${buyURL}" target="_blank"><button>Buy Now</button></a>
-        <button onclick="document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
+        <a href="${buyURL}" target="_blank"><button onclick="playClick()">Buy Now</button></a>
+        <button onclick="playClick();document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
       </div>
     </div>
   `;
   
-  // If the profile was opened from the favorites view, auto-close favorites.
+  // Auto-close the favorites view if it is open.
   document.getElementById("favorites-view").classList.add("hidden");
   
   profileView.classList.remove("hidden");
   
   document.getElementById("nextImage").addEventListener("click", () => {
+    playClick();
     strain.currentImageIndex = (strain.currentImageIndex + 1) % strain.images.length;
     profileView.querySelector("img.strain-image").src = strain.images[strain.currentImageIndex];
   });
 }
 
 // Show the favorites list view.
-// Clicking a favorite strain opens its full profile and auto-closes the favorites view.
+// Clicking a favorite opens its full profile and auto-closes the favorites view.
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -232,10 +257,10 @@ function showFavorites() {
       div.innerHTML = `
         <h4>${strain.name}</h4>
         <p>${strain.about}</p>
-        <small>Price: ${strain.price} | Rating: ${strain.rating}</small>
+        <small>Rating: ${strain.rating}</small>
       `;
-      // When clicked, show full profile and auto-close favorites.
       div.addEventListener("click", () => {
+        playClick();
         showCurrentProfile(strain);
       });
       favList.appendChild(div);
@@ -245,10 +270,22 @@ function showFavorites() {
 }
 
 // Attach event listeners to buttons.
-document.getElementById("swipeLeft").addEventListener("click", () => swipe("left"));
-document.getElementById("swipeRight").addEventListener("click", () => swipe("right"));
-document.getElementById("viewProfile").addEventListener("click", () => showCurrentProfile());
-document.getElementById("viewFavorites").addEventListener("click", showFavorites);
+document.getElementById("swipeLeft").addEventListener("click", () => { 
+  playClick();
+  swipe("left");
+});
+document.getElementById("swipeRight").addEventListener("click", () => { 
+  playClick();
+  swipe("right");
+});
+document.getElementById("viewProfile").addEventListener("click", () => { 
+  playClick();
+  showCurrentProfile();
+});
+document.getElementById("viewFavorites").addEventListener("click", () => { 
+  playClick();
+  showFavorites();
+});
 
 // Initialize by showing the first strain.
 showNextStrain();
