@@ -59,15 +59,13 @@ body {
 }
 
 .controls {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  margin-top: 15px;
+  text-align: center;
 }
 
 button {
-  margin: 0 10px;
-  padding: 10px 20px;
+  margin: 5px;
+  padding: 10px 16px;
   font-size: 16px;
   background: #111;
   color: white;
@@ -76,43 +74,28 @@ button {
   cursor: pointer;
 }
 
-/* Favorites View */
+/* Hidden Containers */
 .hidden {
   display: none;
 }
 
-#favorites-view {
+#favorites-view, #profile-view {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: #ffffffee;
-  overflow-y: auto;
   z-index: 10;
+  background: #ffffffee;
+  height: 100%;
+  width: 100%;
+  overflow-y: auto;
   padding: 20px;
   box-sizing: border-box;
 }
 
-#favorites-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.favorite-strain {
-  background: #f4f4f4;
+.favorite-strain, .profile-strain {
+  background: #f9f9f9;
   border: 2px solid #ccc;
-  padding: 10px;
+  padding: 15px;
   border-radius: 12px;
-  cursor: pointer;
-}
-
-.favorite-strain.open {
-  background: #fff;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.favorite-strain .details.hidden {
-  display: none;
+  margin-bottom: 15px;
 }
