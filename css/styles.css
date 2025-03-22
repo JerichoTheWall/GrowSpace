@@ -75,3 +75,44 @@ button {
   border-radius: 8px;
   cursor: pointer;
 }
+
+/* Favorites View */
+.hidden {
+  display: none;
+}
+
+#favorites-view {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffffee;
+  overflow-y: auto;
+  z-index: 10;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+#favorites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.favorite-strain {
+  background: #f4f4f4;
+  border: 2px solid #ccc;
+  padding: 10px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.favorite-strain.open {
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.favorite-strain .details.hidden {
+  display: none;
+}
