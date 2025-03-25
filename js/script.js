@@ -278,76 +278,12 @@ function showFavorites() {
 // Chatbot Integration
 // ==================
 
-// Chat conversation history (for ChatGPT-4).
-let chatHistory = [
-  { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When a product is suggested, include the product name preceded by 'Suggesting:'." }
-];
-
-// Toggle the chat widget visibility.
-function toggleChat() {
-  const chatWidget = document.getElementById("chat-widget");
-  if (chatWidget.classList.contains("hidden")) {
-    chatWidget.classList.remove("hidden");
-  } else {
-    chatWidget.classList.remove("hidden");
-  }
-}
-
-// Append a message to the chat messages area.
-function appendChatMessage(sender, text) {
-  const chatMessages = document.getElementById("chat-messages");
-  const msgDiv = document.createElement("div");
-  msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
-  chatMessages.appendChild(msgDiv);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// Chat send event listener.
-document.getElementById("chat-send").addEventListener("click", async () => {
-  const inputField = document.getElementById("chat-input");
-  const message = inputField.value.trim();
-  if (!message) return;
-  
-  appendChatMessage("You", message);
-  chatHistory.push({ role: "user", content: message });
-  inputField.value = "";
-  
-  // Send chat history to your backend endpoint.
-  try {
-    const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: chatHistory })
-    });
-    const data = await response.json();
-    const reply = data.reply.content;
-    appendChatMessage("Chatbot", reply);
-    chatHistory.push({ role: "assistant", content: reply });
-    
-    // If the chatbot's reply contains a suggestion, e.g. "Suggesting: OG Kush", extract and open that product's profile.
-    if (reply.toLowerCase().includes("suggesting:")) {
-      const product = reply.split("suggesting:")[1].trim();
-      openProductProfile(product);
-    }
-    
-  } catch (error) {
-    console.error("Chatbot error:", error);
-    appendChatMessage("Chatbot", "Sorry, there was an error processing your request.");
-  }
-});
-
-// Open a product profile based on a suggested product name.
-function openProductProfile(productName) {
-  const strain = strains.find(s => s.name.toLowerCase() === productName.toLowerCase());
-  if (strain) {
-    document.getElementById("chat-widget").classList.add("hidden");
-    showCurrentProfile(strain);
-  }
-}
 
 // ==================
 // Attach Event Listeners for Main UI
 // ==================
+
+
 document.getElementById("swipeLeft").addEventListener("click", () => {
   swipe("left");
 });
