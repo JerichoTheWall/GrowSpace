@@ -111,12 +111,12 @@ const strains = [
   }
 ];
 
-// Global arrays for swipe lineup and favorites.
+// Global arrays for the swipe lineup and favorites.
 let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
 
-// Prevent swiping when profile is open.
+// Prevent swiping when a profile is open.
 function canSwipe() {
   return document.getElementById("profile-view").classList.contains("hidden");
 }
@@ -140,7 +140,7 @@ function loadStrainCard() {
   `;
 }
 
-// Repopulate the lineup with strains not yet favorited if empty.
+// If the lineup is empty, repopulate it with strains not favorited.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -162,7 +162,7 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: plays soft.wav, adds current strain to favorites (if not already), and removes it permanently.
+// - Right swipe: plays soft.wav, adds the current strain to favorites (if not already), and removes it permanently.
 // - Left swipe: plays hard.wav and moves the current strain to the end of the lineup.
 function swipe(direction) {
   if (!canSwipe()) return;
@@ -203,7 +203,7 @@ function getBuyURL(strainName) {
 }
 
 // Show the full profile view for a strain.
-// If strainArg is provided (from favorites), use it; otherwise, use the current strain.
+// If strainArg is provided (e.g. from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
   if (!canSwipe()) return;
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
@@ -235,9 +235,8 @@ function showCurrentProfile(strainArg) {
     </div>
   `;
   
-  // Auto-close the favorites view if open.
+  // Auto-close favorites view if open.
   document.getElementById("favorites-view").classList.add("hidden");
-  
   profileView.classList.remove("hidden");
   
   document.getElementById("nextImage").addEventListener("click", () => {
@@ -248,7 +247,7 @@ function showCurrentProfile(strainArg) {
 }
 
 // Show the favorites list view.
-// Clicking a favorite strain plays soft.wav and opens its full profile (auto-closing the favorites view).
+// Clicking a favorite strain plays soft.wav and opens its profile, auto-closing the favorites view.
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -303,7 +302,7 @@ function appendChatMessage(sender, text) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Event listener for sending chat messages.
+// Chat send event listener.
 document.getElementById("chat-send").addEventListener("click", async () => {
   const inputField = document.getElementById("chat-input");
   const message = inputField.value.trim();
@@ -313,7 +312,7 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   chatHistory.push({ role: "user", content: message });
   inputField.value = "";
   
-  // Send the chat history to your backend (replace localhost with your backend URL in production).
+  // Send chat history to your backend endpoint.
   try {
     const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev/', {
       method: "POST",
@@ -325,7 +324,7 @@ document.getElementById("chat-send").addEventListener("click", async () => {
     appendChatMessage("Chatbot", reply);
     chatHistory.push({ role: "assistant", content: reply });
     
-    // If the chatbot reply contains a suggestion (e.g., "Suggesting: OG Kush"), parse and open that profile.
+    // If the chatbot's reply contains a suggestion, e.g. "Suggesting: OG Kush", extract and open that product's profile.
     if (reply.toLowerCase().includes("suggesting:")) {
       const product = reply.split("suggesting:")[1].trim();
       openProductProfile(product);
@@ -337,14 +336,11 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   }
 });
 
-// Function to open a product profile based on a suggested product name.
+// Open a product profile based on a suggested product name.
 function openProductProfile(productName) {
-  // Find the strain whose name matches (case-insensitive).
   const strain = strains.find(s => s.name.toLowerCase() === productName.toLowerCase());
   if (strain) {
-    // Auto-close the chat widget.
     document.getElementById("chat-widget").classList.add("hidden");
-    // Open the strain's full profile.
     showCurrentProfile(strain);
   }
 }
@@ -353,7 +349,6 @@ function openProductProfile(productName) {
 // Attach Event Listeners for Main UI
 // ==================
 document.getElementById("swipeLeft").addEventListener("click", () => {
-  // For swiping, do not play click.wav.
   swipe("left");
 });
 document.getElementById("swipeRight").addEventListener("click", () => {
