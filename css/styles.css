@@ -74,9 +74,9 @@ button {
   cursor: pointer;
 }
 
-/* Hidden containers */
+/* Hidden containers (use !important to ensure they override other styles) */
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 /* Profile view (full strain info) */
