@@ -110,7 +110,7 @@ const strains = [
   }
 ];
 
-// Global arrays for swipe lineup and favorites.
+// Global arrays for the swipe lineup and favorites.
 let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
@@ -139,7 +139,7 @@ function loadStrainCard() {
   `;
 }
 
-// Repopulate the lineup with strains not yet favorited if empty.
+// If lineup is empty, repopulate with strains not yet favorited.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -202,7 +202,7 @@ function getBuyURL(strainName) {
 }
 
 // Show the full profile view for a strain.
-// If strainArg is provided, use it; otherwise, use the current strain.
+// If strainArg is provided (e.g., from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
   if (!canSwipe()) return;
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
@@ -233,6 +233,7 @@ function showCurrentProfile(strainArg) {
     </div>
   `;
   
+  // Close the favorites view if it's open.
   document.getElementById("favorites-view").classList.add("hidden");
   profileView.classList.remove("hidden");
   
@@ -244,7 +245,7 @@ function showCurrentProfile(strainArg) {
 }
 
 // Show the favorites list view.
-// Clicking a favorite plays soft.wav and opens its profile (closing the favorites view).
+// Clicking a favorite plays soft.wav and opens its profile (auto-closing the favorites view).
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -283,10 +284,14 @@ let chatHistory = [
 // Toggle the chat widget visibility.
 function toggleChat() {
   const chatWidget = document.getElementById("chat-widget");
-  chatWidget.classList.toggle("hidden");
+  if (chatWidget.classList.contains("hidden")) {
+    chatWidget.classList.remove("hidden");
+  } else {
+    chatWidget.classList.add("hidden");
+  }
 }
 
-// Append a message to the chat window.
+// Append a message to the chat messages area.
 function appendChatMessage(sender, text) {
   const chatMessages = document.getElementById("chat-messages");
   const msgDiv = document.createElement("div");
@@ -327,7 +332,7 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   }
 });
 
-// Open product profile based on a suggested product name.
+// Open a product profile based on a suggested product name.
 function openProductProfile(productName) {
   const strain = strains.find(s => s.name.toLowerCase() === productName.toLowerCase());
   if (strain) {
