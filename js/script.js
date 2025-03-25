@@ -18,8 +18,11 @@ function playClick() {
 }
 
 // ==================
-// GrowSpace Product Data
+// GrowSpace Product Data & Functions
 // ==================
+
+// Define 5 strains with local image paths.
+// Each strain's images are stored in images/Strain_Name folders (use underscores for spaces).
 const strains = [
   {
     id: 1,
@@ -34,6 +37,8 @@ const strains = [
     dislikes: ["Dry Mouth", "Paranoia"],
     terpenes: ["Limonene", "Pinene"],
     rating: 4.7,
+    price: "$25/g",
+    deal: "10% off today",
     seenCount: 0
   },
   {
@@ -49,6 +54,8 @@ const strains = [
     dislikes: ["Dry Eyes"],
     terpenes: ["Myrcene", "Caryophyllene"],
     rating: 4.6,
+    price: "$22/g",
+    deal: "Buy 1g get 1 free",
     seenCount: 0
   },
   {
@@ -64,6 +71,8 @@ const strains = [
     dislikes: ["Dizziness"],
     terpenes: ["Humulene", "Linalool"],
     rating: 4.8,
+    price: "$28/g",
+    deal: "Free pre-roll with 3.5g",
     seenCount: 0
   },
   {
@@ -79,6 +88,8 @@ const strains = [
     dislikes: ["Dry Mouth"],
     terpenes: ["Limonene", "Caryophyllene"],
     rating: 4.9,
+    price: "$27/g",
+    deal: "Free edible sample",
     seenCount: 0
   },
   {
@@ -94,24 +105,23 @@ const strains = [
     dislikes: ["Dry Eyes", "Lethargy"],
     terpenes: ["Myrcene", "Limonene"],
     rating: 4.9,
+    price: "$26/g",
+    deal: "25% off after 8PM",
     seenCount: 0
   }
 ];
 
-// ==================
-// Global Variables
-// ==================
+// Global arrays for the swipe lineup and favorites.
 let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
 
-// ==================
-// UI Helper Functions
-// ==================
+// Prevent swiping when a profile is open.
 function canSwipe() {
   return document.getElementById("profile-view").classList.contains("hidden");
 }
 
+// Load the current strain's card (minimal info).
 function loadStrainCard() {
   if (lineup.length === 0) {
     document.getElementById("swipe-area").innerHTML = "<h2>No more strains for now.</h2>";
@@ -130,6 +140,7 @@ function loadStrainCard() {
   `;
 }
 
+// If the lineup is empty, repopulate it with strains not favorited.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -138,6 +149,7 @@ function repopulateLineup() {
   }
 }
 
+// Show the next strain.
 function showNextStrain() {
   if (lineup.length === 0) {
     repopulateLineup();
@@ -149,9 +161,9 @@ function showNextStrain() {
   loadStrainCard();
 }
 
-// ==================
-// Swipe Functions
-// ==================
+// Swipe function:
+// - Right swipe: plays soft.wav, adds the current strain to favorites (if not already), and removes it permanently.
+// - Left swipe: plays hard.wav and moves the current strain to the end of the lineup.
 function swipe(direction) {
   if (!canSwipe()) return;
   if (lineup.length === 0) return;
@@ -172,9 +184,7 @@ function swipe(direction) {
   showNextStrain();
 }
 
-// ==================
-// Buy URL Function
-// ==================
+// Determine the Buy URL based on the strain name.
 function getBuyURL(strainName) {
   switch(strainName) {
     case "OG Kush":
@@ -192,14 +202,14 @@ function getBuyURL(strainName) {
   }
 }
 
-// ==================
-// Profile View Function
-// ==================
+// Show the full profile view for a strain.
+// If strainArg is provided (e.g. from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
   if (!canSwipe()) return;
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
   if (!strain) return;
   
+  // Initialize current image index if not set.
   if (typeof strain.currentImageIndex === "undefined") {
     strain.currentImageIndex = 0;
   }
@@ -219,12 +229,8 @@ function showCurrentProfile(strainArg) {
       </div>
       <div class="profile-controls">
         <button id="nextImage">Next Image</button>
-        <a href="${buyURL}" target="_blank">
-          <button onclick="playSoft()">Buy Now</button>
-        </a>
-        <button onclick="playClick(); document.getElementById('profile-view').classList.add('hidden')">
-          Close Profile
-        </button>
+        <a href="${buyURL}" target="_blank"><button onclick="playSoft()">Buy Now</button></a>
+        <button onclick="playClick(); document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
       </div>
     </div>
   `;
@@ -240,9 +246,8 @@ function showCurrentProfile(strainArg) {
   });
 }
 
-// ==================
-// Favorites View Function
-// ==================
+// Show the favorites list view.
+// Clicking a favorite strain plays soft.wav and opens its profile, auto-closing the favorites view.
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -270,7 +275,78 @@ function showFavorites() {
 }
 
 // ==================
-// Attach Main UI Event Listeners
+// Chatbot Integration
+// ==================
+
+// Chat conversation history (for ChatGPT-4).
+let chatHistory = [
+  { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When a product is suggested, include the product name preceded by 'Suggesting:'." }
+];
+
+// Toggle the chat widget visibility.
+function toggleChat() {
+  const chatWidget = document.getElementById("chat-widget");
+  if (chatWidget.classList.contains("hidden")) {
+    chatWidget.classList.remove("hidden");
+  } else {
+    chatWidget.classList.add("hidden");
+  }
+}
+
+// Append a message to the chat messages area.
+function appendChatMessage(sender, text) {
+  const chatMessages = document.getElementById("chat-messages");
+  const msgDiv = document.createElement("div");
+  msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatMessages.appendChild(msgDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Chat send event listener.
+document.getElementById("chat-send").addEventListener("click", async () => {
+  const inputField = document.getElementById("chat-input");
+  const message = inputField.value.trim();
+  if (!message) return;
+  
+  appendChatMessage("You", message);
+  chatHistory.push({ role: "user", content: message });
+  inputField.value = "";
+  
+  // Send chat history to your backend endpoint.
+  try {
+    const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev/chat', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: chatHistory })
+    });
+    const data = await response.json();
+    const reply = data.reply.content;
+    appendChatMessage("Chatbot", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+    
+    // If the chatbot's reply contains a suggestion, e.g. "Suggesting: OG Kush", extract and open that product's profile.
+    if (reply.toLowerCase().includes("suggesting:")) {
+      const product = reply.split("suggesting:")[1].trim();
+      openProductProfile(product);
+    }
+    
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    appendChatMessage("Chatbot", "Sorry, there was an error processing your request.");
+  }
+});
+
+// Open a product profile based on a suggested product name.
+function openProductProfile(productName) {
+  const strain = strains.find(s => s.name.toLowerCase() === productName.toLowerCase());
+  if (strain) {
+    document.getElementById("chat-widget").classList.add("hidden");
+    showCurrentProfile(strain);
+  }
+}
+
+// ==================
+// Attach Event Listeners for Main UI
 // ==================
 document.getElementById("swipeLeft").addEventListener("click", () => {
   swipe("left");
@@ -285,6 +361,10 @@ document.getElementById("viewProfile").addEventListener("click", () => {
 document.getElementById("viewFavorites").addEventListener("click", () => {
   playClick();
   showFavorites();
+});
+document.getElementById("open-chat").addEventListener("click", () => {
+  playClick();
+  toggleChat();
 });
 
 // ==================
