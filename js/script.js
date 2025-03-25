@@ -18,23 +18,8 @@ function playClick() {
 }
 
 // ==================
-// Chat Toggle Function
+// GrowSpace Product Data
 // ==================
-function toggleChat() {
-  const chatWidget = document.getElementById("chat-widget");
-  // Toggle the "hidden" class
-  if (chatWidget.classList.contains("hidden")) {
-    chatWidget.classList.remove("hidden");
-  } else {
-    chatWidget.classList.add("hidden");
-  }
-}
-
-// ==================
-// GrowSpace Product Data & Functions
-// ==================
-
-// Define 5 strains with local image paths.
 const strains = [
   {
     id: 1,
@@ -113,17 +98,20 @@ const strains = [
   }
 ];
 
-// Global arrays for the swipe lineup and favorites.
+// ==================
+// Global Variables
+// ==================
 let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
 
-// Prevent swiping when a profile is open.
+// ==================
+// UI Helper Functions
+// ==================
 function canSwipe() {
   return document.getElementById("profile-view").classList.contains("hidden");
 }
 
-// Load the current strain's card (minimal info).
 function loadStrainCard() {
   if (lineup.length === 0) {
     document.getElementById("swipe-area").innerHTML = "<h2>No more strains for now.</h2>";
@@ -142,7 +130,6 @@ function loadStrainCard() {
   `;
 }
 
-// Repopulate the lineup with strains not yet favorited if empty.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -151,7 +138,6 @@ function repopulateLineup() {
   }
 }
 
-// Show the next strain.
 function showNextStrain() {
   if (lineup.length === 0) {
     repopulateLineup();
@@ -163,9 +149,9 @@ function showNextStrain() {
   loadStrainCard();
 }
 
-// Swipe function:
-// - Right swipe: plays soft.wav, adds current strain to favorites and removes it permanently.
-// - Left swipe: plays hard.wav and moves current strain to the end of the lineup.
+// ==================
+// Swipe Functions
+// ==================
 function swipe(direction) {
   if (!canSwipe()) return;
   if (lineup.length === 0) return;
@@ -186,7 +172,9 @@ function swipe(direction) {
   showNextStrain();
 }
 
-// Determine the Buy URL based on the strain name.
+// ==================
+// Buy URL Function
+// ==================
 function getBuyURL(strainName) {
   switch(strainName) {
     case "OG Kush":
@@ -204,8 +192,9 @@ function getBuyURL(strainName) {
   }
 }
 
-// Show the full profile view for a strain.
-// If strainArg is provided (e.g., from favorites), use it; otherwise, use the current strain.
+// ==================
+// Profile View Function
+// ==================
 function showCurrentProfile(strainArg) {
   if (!canSwipe()) return;
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
@@ -230,13 +219,17 @@ function showCurrentProfile(strainArg) {
       </div>
       <div class="profile-controls">
         <button id="nextImage">Next Image</button>
-        <a href="${buyURL}" target="_blank"><button onclick="playSoft()">Buy Now</button></a>
-        <button onclick="playClick(); document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
+        <a href="${buyURL}" target="_blank">
+          <button onclick="playSoft()">Buy Now</button>
+        </a>
+        <button onclick="playClick(); document.getElementById('profile-view').classList.add('hidden')">
+          Close Profile
+        </button>
       </div>
     </div>
   `;
   
-  // Auto-close the favorites view if open.
+  // Auto-close favorites view if open.
   document.getElementById("favorites-view").classList.add("hidden");
   profileView.classList.remove("hidden");
   
@@ -247,8 +240,9 @@ function showCurrentProfile(strainArg) {
   });
 }
 
-// Show the favorites list view.
-// Clicking a favorite plays soft.wav and opens its profile (auto-closing the favorites view).
+// ==================
+// Favorites View Function
+// ==================
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -276,76 +270,7 @@ function showFavorites() {
 }
 
 // ==================
-// Chatbot Integration
-// ==================
-
-// Chat conversation history for ChatGPT-4.
-let chatHistory = [
-  { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When suggesting, include 'Suggesting:' followed by the product name." }
-];
-
-// Toggle the chat widget visibility.
-function toggleChat() {
-  const chatWidget = document.getElementById("chat-widget");
-  if (chatWidget.classList.contains("hidden")) {
-    chatWidget.classList.remove("hidden");
-  } else {
-    chatWidget.classList.add("hidden");
-  }
-}
-
-// Append a message to the chat window.
-function appendChatMessage(sender, text) {
-  const chatMessages = document.getElementById("chat-messages");
-  const msgDiv = document.createElement("div");
-  msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
-  chatMessages.appendChild(msgDiv);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-// Chat send event listener.
-document.getElementById("chat-send").addEventListener("click", async () => {
-  const inputField = document.getElementById("chat-input");
-  const message = inputField.value.trim();
-  if (!message) return;
-  
-  appendChatMessage("You", message);
-  chatHistory.push({ role: "user", content: message });
-  inputField.value = "";
-  
-  try {
-    const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev', {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: chatHistory })
-    });
-    const data = await response.json();
-    const reply = data.reply.content;
-    appendChatMessage("Chatbot", reply);
-    chatHistory.push({ role: "assistant", content: reply });
-    
-    if (reply.toLowerCase().includes("suggesting:")) {
-      const product = reply.split("suggesting:")[1].trim();
-      openProductProfile(product);
-    }
-    
-  } catch (error) {
-    console.error("Chatbot error:", error);
-    appendChatMessage("Chatbot", "Sorry, there was an error processing your request.");
-  }
-});
-
-// Open a product profile based on a suggested product name.
-function openProductProfile(productName) {
-  const strain = strains.find(s => s.name.toLowerCase() === productName.toLowerCase());
-  if (strain) {
-    document.getElementById("chat-widget").classList.add("hidden");
-    showCurrentProfile(strain);
-  }
-}
-
-// ==================
-// Attach Event Listeners for Main UI
+// Attach Main UI Event Listeners
 // ==================
 document.getElementById("swipeLeft").addEventListener("click", () => {
   swipe("left");
@@ -360,10 +285,6 @@ document.getElementById("viewProfile").addEventListener("click", () => {
 document.getElementById("viewFavorites").addEventListener("click", () => {
   playClick();
   showFavorites();
-});
-document.getElementById("open-chat").addEventListener("click", () => {
-  playClick();
-  toggleChat();
 });
 
 // ==================
