@@ -1,4 +1,6 @@
-// Sound effects from /sfx/UI folder.
+// ==================
+// Sound Effects Setup
+// ==================
 const sfxSoft = new Audio('sfx/UI/soft.wav');
 const sfxHard = new Audio('sfx/UI/hard.wav');
 const sfxClick = new Audio('sfx/UI/click.wav');
@@ -14,6 +16,10 @@ function playHard() {
 function playClick() {
   sfxClick.play();
 }
+
+// ==================
+// GrowSpace Product Data & Functions
+// ==================
 
 // Define 5 strains with local image paths.
 // Each strain's images are stored in images/Strain_Name folders (use underscores for spaces).
@@ -105,12 +111,12 @@ const strains = [
   }
 ];
 
-// Global arrays for the swipe lineup and favorites.
+// Global arrays for swipe lineup and favorites.
 let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
 
-// Prevent swiping when a profile is open.
+// Prevent swiping when profile is open.
 function canSwipe() {
   return document.getElementById("profile-view").classList.contains("hidden");
 }
@@ -156,8 +162,8 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: plays soft.wav, adds current strain to favorites, removes it permanently.
-// - Left swipe: plays hard.wav, moves current strain to the end of the lineup.
+// - Right swipe: plays soft.wav, adds current strain to favorites (if not already), and removes it permanently.
+// - Left swipe: plays hard.wav and moves the current strain to the end of the lineup.
 function swipe(direction) {
   if (!canSwipe()) return;
   if (lineup.length === 0) return;
@@ -223,8 +229,8 @@ function showCurrentProfile(strainArg) {
       </div>
       <div class="profile-controls">
         <button id="nextImage">Next Image</button>
-        <a href="${buyURL}" target="_blank"><button onclick="playClick()">Buy Now</button></a>
-        <button onclick="playClick();document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
+        <a href="${buyURL}" target="_blank"><button onclick="playSoft()">Buy Now</button></a>
+        <button onclick="playClick(); document.getElementById('profile-view').classList.add('hidden')">Close Profile</button>
       </div>
     </div>
   `;
@@ -242,7 +248,7 @@ function showCurrentProfile(strainArg) {
 }
 
 // Show the favorites list view.
-// Clicking a favorite strain now plays soft.wav and opens its profile, auto-closing the favorites view.
+// Clicking a favorite strain plays soft.wav and opens its full profile (auto-closing the favorites view).
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -269,8 +275,85 @@ function showFavorites() {
   favView.classList.remove("hidden");
 }
 
-// Attach event listeners.
+// ==================
+// Chatbot Integration
+// ==================
+
+// Chat conversation history (for ChatGPT-4).
+let chatHistory = [
+  { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When a product is suggested, include the product name preceded by 'Suggesting:'." }
+];
+
+// Toggle the chat widget visibility.
+function toggleChat() {
+  const chatWidget = document.getElementById("chat-widget");
+  if (chatWidget.classList.contains("hidden")) {
+    chatWidget.classList.remove("hidden");
+  } else {
+    chatWidget.classList.add("hidden");
+  }
+}
+
+// Append a message to the chat messages area.
+function appendChatMessage(sender, text) {
+  const chatMessages = document.getElementById("chat-messages");
+  const msgDiv = document.createElement("div");
+  msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+  chatMessages.appendChild(msgDiv);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Event listener for sending chat messages.
+document.getElementById("chat-send").addEventListener("click", async () => {
+  const inputField = document.getElementById("chat-input");
+  const message = inputField.value.trim();
+  if (!message) return;
+  
+  appendChatMessage("You", message);
+  chatHistory.push({ role: "user", content: message });
+  inputField.value = "";
+  
+  // Send the chat history to your backend (replace localhost with your backend URL in production).
+  try {
+    const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev/', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: chatHistory })
+    });
+    const data = await response.json();
+    const reply = data.reply.content;
+    appendChatMessage("Chatbot", reply);
+    chatHistory.push({ role: "assistant", content: reply });
+    
+    // If the chatbot reply contains a suggestion (e.g., "Suggesting: OG Kush"), parse and open that profile.
+    if (reply.toLowerCase().includes("suggesting:")) {
+      const product = reply.split("suggesting:")[1].trim();
+      openProductProfile(product);
+    }
+    
+  } catch (error) {
+    console.error("Chatbot error:", error);
+    appendChatMessage("Chatbot", "Sorry, there was an error processing your request.");
+  }
+});
+
+// Function to open a product profile based on a suggested product name.
+function openProductProfile(productName) {
+  // Find the strain whose name matches (case-insensitive).
+  const strain = strains.find(s => s.name.toLowerCase() === productName.toLowerCase());
+  if (strain) {
+    // Auto-close the chat widget.
+    document.getElementById("chat-widget").classList.add("hidden");
+    // Open the strain's full profile.
+    showCurrentProfile(strain);
+  }
+}
+
+// ==================
+// Attach Event Listeners for Main UI
+// ==================
 document.getElementById("swipeLeft").addEventListener("click", () => {
+  // For swiping, do not play click.wav.
   swipe("left");
 });
 document.getElementById("swipeRight").addEventListener("click", () => {
@@ -284,6 +367,12 @@ document.getElementById("viewFavorites").addEventListener("click", () => {
   playClick();
   showFavorites();
 });
+document.getElementById("open-chat").addEventListener("click", () => {
+  playClick();
+  toggleChat();
+});
 
-// Initialize by showing the first strain.
+// ==================
+// Initialize the App
+// ==================
 showNextStrain();
