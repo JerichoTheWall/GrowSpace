@@ -18,6 +18,19 @@ function playClick() {
 }
 
 // ==================
+// Chat Toggle Function
+// ==================
+function toggleChat() {
+  const chatWidget = document.getElementById("chat-widget");
+  // Toggle the "hidden" class
+  if (chatWidget.classList.contains("hidden")) {
+    chatWidget.classList.remove("hidden");
+  } else {
+    chatWidget.classList.add("hidden");
+  }
+}
+
+// ==================
 // GrowSpace Product Data & Functions
 // ==================
 
@@ -36,8 +49,6 @@ const strains = [
     dislikes: ["Dry Mouth", "Paranoia"],
     terpenes: ["Limonene", "Pinene"],
     rating: 4.7,
-    price: "$25/g",
-    deal: "10% off today",
     seenCount: 0
   },
   {
@@ -53,8 +64,6 @@ const strains = [
     dislikes: ["Dry Eyes"],
     terpenes: ["Myrcene", "Caryophyllene"],
     rating: 4.6,
-    price: "$22/g",
-    deal: "Buy 1g get 1 free",
     seenCount: 0
   },
   {
@@ -70,8 +79,6 @@ const strains = [
     dislikes: ["Dizziness"],
     terpenes: ["Humulene", "Linalool"],
     rating: 4.8,
-    price: "$28/g",
-    deal: "Free pre-roll with 3.5g",
     seenCount: 0
   },
   {
@@ -87,8 +94,6 @@ const strains = [
     dislikes: ["Dry Mouth"],
     terpenes: ["Limonene", "Caryophyllene"],
     rating: 4.9,
-    price: "$27/g",
-    deal: "Free edible sample",
     seenCount: 0
   },
   {
@@ -104,8 +109,6 @@ const strains = [
     dislikes: ["Dry Eyes", "Lethargy"],
     terpenes: ["Myrcene", "Limonene"],
     rating: 4.9,
-    price: "$26/g",
-    deal: "25% off after 8PM",
     seenCount: 0
   }
 ];
@@ -139,7 +142,7 @@ function loadStrainCard() {
   `;
 }
 
-// If lineup is empty, repopulate with strains not yet favorited.
+// Repopulate the lineup with strains not yet favorited if empty.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -161,7 +164,7 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: plays soft.wav, adds current strain to favorites (if not already), and removes it permanently.
+// - Right swipe: plays soft.wav, adds current strain to favorites and removes it permanently.
 // - Left swipe: plays hard.wav and moves current strain to the end of the lineup.
 function swipe(direction) {
   if (!canSwipe()) return;
@@ -233,7 +236,7 @@ function showCurrentProfile(strainArg) {
     </div>
   `;
   
-  // Close the favorites view if it's open.
+  // Auto-close the favorites view if open.
   document.getElementById("favorites-view").classList.add("hidden");
   profileView.classList.remove("hidden");
   
@@ -291,7 +294,7 @@ function toggleChat() {
   }
 }
 
-// Append a message to the chat messages area.
+// Append a message to the chat window.
 function appendChatMessage(sender, text) {
   const chatMessages = document.getElementById("chat-messages");
   const msgDiv = document.createElement("div");
