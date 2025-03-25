@@ -315,7 +315,7 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   
   // Send the chat history to your backend (replace localhost with your backend URL in production).
   try {
-    const response = await fetch('http://localhost:3000/chat', {
+    const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev/', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: chatHistory })
