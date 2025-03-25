@@ -9,13 +9,13 @@
 <body>
   <div class="game-container">
     <div class="phone-frame">
-      <!-- Main swipe area -->
+      <!-- Main swipe area for the current strain -->
       <div id="swipe-area"></div>
-
-      <!-- Profile View (hidden by default) -->
+      
+      <!-- Profile view for the full product details (hidden by default) -->
       <div id="profile-view" class="hidden"></div>
-
-      <!-- Favorites View (hidden by default) -->
+      
+      <!-- Favorites view for all liked strains (hidden by default) -->
       <div id="favorites-view" class="hidden">
         <h3>Your Favorites</h3>
         <div id="favorites-list"></div>
@@ -23,31 +23,17 @@
           Close Favorites
         </button>
       </div>
-
-      <!-- Chat Widget (hidden by default) -->
-      <div id="chat-widget" class="hidden">
-        <div id="chat-window">
-          <div id="chat-messages"></div>
-          <input type="text" id="chat-input" placeholder="Type your message here..." />
-          <button id="chat-send">Send</button>
-          <button id="chat-close" onclick="playClick(); toggleChat();">
-            Close Chat
-          </button>
-        </div>
-      </div>
     </div>
-
+    
+    <!-- Control buttons -->
     <div class="controls">
       <button id="swipeLeft">Swipe Left</button>
       <button id="swipeRight">Swipe Right</button>
       <button id="viewProfile">View Profile</button>
       <button id="viewFavorites">Favorites</button>
-      <button id="open-chat" onclick="playClick(); toggleChat();">
-        Chat with Us
-      </button>
     </div>
   </div>
-
+  
   <script src="js/script.js"></script>
 </body>
 </html>
