@@ -22,7 +22,6 @@ function playClick() {
 // ==================
 
 // Define 5 strains with local image paths.
-// Each strain's images are stored in images/Strain_Name folders (use underscores for spaces).
 const strains = [
   {
     id: 1,
@@ -162,7 +161,7 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: plays soft.wav, adds current strain to favorites (if not already), and removes it permanently.
+// - Right swipe: plays soft.wav, adds current strain to favorites, removes it permanently.
 // - Left swipe: plays hard.wav and moves current strain to the end of the lineup.
 function swipe(direction) {
   if (!canSwipe()) return;
@@ -203,13 +202,12 @@ function getBuyURL(strainName) {
 }
 
 // Show the full profile view for a strain.
-// If strainArg is provided (from favorites), use it; otherwise, use the current strain.
+// If strainArg is provided, use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
   if (!canSwipe()) return;
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
   if (!strain) return;
   
-  // Initialize current image index if not set.
   if (typeof strain.currentImageIndex === "undefined") {
     strain.currentImageIndex = 0;
   }
@@ -235,7 +233,6 @@ function showCurrentProfile(strainArg) {
     </div>
   `;
   
-  // Auto-close favorites view if open.
   document.getElementById("favorites-view").classList.add("hidden");
   profileView.classList.remove("hidden");
   
@@ -247,7 +244,7 @@ function showCurrentProfile(strainArg) {
 }
 
 // Show the favorites list view.
-// Clicking a favorite strain plays soft.wav and opens its profile, auto-closing the favorites view.
+// Clicking a favorite plays soft.wav and opens its profile (closing the favorites view).
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -278,12 +275,12 @@ function showFavorites() {
 // Chatbot Integration
 // ==================
 
-// Chat conversation history (for ChatGPT-4).
+// Chat history for ChatGPT-4.
 let chatHistory = [
-  { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When a product is suggested, include the product name preceded by 'Suggesting:'." }
+  { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When suggesting, include 'Suggesting:' followed by the product name." }
 ];
 
-// Toggle the chat widget visibility.
+// Toggle chat widget visibility.
 function toggleChat() {
   const chatWidget = document.getElementById("chat-widget");
   if (chatWidget.classList.contains("hidden")) {
@@ -293,7 +290,7 @@ function toggleChat() {
   }
 }
 
-// Append a message to the chat messages area.
+// Append message to chat window.
 function appendChatMessage(sender, text) {
   const chatMessages = document.getElementById("chat-messages");
   const msgDiv = document.createElement("div");
@@ -312,7 +309,6 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   chatHistory.push({ role: "user", content: message });
   inputField.value = "";
   
-  // Send chat history to your backend endpoint.
   try {
     const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev', {
       method: "POST",
@@ -324,7 +320,6 @@ document.getElementById("chat-send").addEventListener("click", async () => {
     appendChatMessage("Chatbot", reply);
     chatHistory.push({ role: "assistant", content: reply });
     
-    // If the chatbot's reply contains a suggestion, e.g., "Suggesting: OG Kush", extract and open that product's profile.
     if (reply.toLowerCase().includes("suggesting:")) {
       const product = reply.split("suggesting:")[1].trim();
       openProductProfile(product);
@@ -336,7 +331,7 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   }
 });
 
-// Open a product profile based on a suggested product name.
+// Open product profile based on suggested product name.
 function openProductProfile(productName) {
   const strain = strains.find(s => s.name.toLowerCase() === productName.toLowerCase());
   if (strain) {
@@ -346,7 +341,7 @@ function openProductProfile(productName) {
 }
 
 // ==================
-// Attach Event Listeners for Main UI
+// Attach Main UI Event Listeners
 // ==================
 document.getElementById("swipeLeft").addEventListener("click", () => {
   swipe("left");

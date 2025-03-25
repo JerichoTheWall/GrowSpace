@@ -74,12 +74,12 @@ button {
   cursor: pointer;
 }
 
-/* Hidden containers (use !important to ensure they override other styles) */
+/* Hidden containers */
 .hidden {
   display: none !important;
 }
 
-/* Profile view (full strain info) */
+/* Profile view */
 #profile-view {
   position: absolute;
   top: 0;
