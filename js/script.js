@@ -18,11 +18,23 @@ function playClick() {
 }
 
 // ==================
+// Chat Toggle Function
+// ==================
+function toggleChat() {
+  const chatWidget = document.getElementById("chat-widget");
+  // Toggle the "hidden" class
+  if (chatWidget.classList.contains("hidden")) {
+    chatWidget.classList.remove("hidden");
+  } else {
+    chatWidget.classList.add("hidden");
+  }
+}
+
+// ==================
 // GrowSpace Product Data & Functions
 // ==================
 
 // Define 5 strains with local image paths.
-// Each strain's images are stored in images/Strain_Name folders (use underscores for spaces).
 const strains = [
   {
     id: 1,
@@ -37,8 +49,6 @@ const strains = [
     dislikes: ["Dry Mouth", "Paranoia"],
     terpenes: ["Limonene", "Pinene"],
     rating: 4.7,
-    price: "$25/g",
-    deal: "10% off today",
     seenCount: 0
   },
   {
@@ -54,8 +64,6 @@ const strains = [
     dislikes: ["Dry Eyes"],
     terpenes: ["Myrcene", "Caryophyllene"],
     rating: 4.6,
-    price: "$22/g",
-    deal: "Buy 1g get 1 free",
     seenCount: 0
   },
   {
@@ -71,8 +79,6 @@ const strains = [
     dislikes: ["Dizziness"],
     terpenes: ["Humulene", "Linalool"],
     rating: 4.8,
-    price: "$28/g",
-    deal: "Free pre-roll with 3.5g",
     seenCount: 0
   },
   {
@@ -88,8 +94,6 @@ const strains = [
     dislikes: ["Dry Mouth"],
     terpenes: ["Limonene", "Caryophyllene"],
     rating: 4.9,
-    price: "$27/g",
-    deal: "Free edible sample",
     seenCount: 0
   },
   {
@@ -105,8 +109,6 @@ const strains = [
     dislikes: ["Dry Eyes", "Lethargy"],
     terpenes: ["Myrcene", "Limonene"],
     rating: 4.9,
-    price: "$26/g",
-    deal: "25% off after 8PM",
     seenCount: 0
   }
 ];
@@ -162,7 +164,7 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: plays soft.wav, adds current strain to favorites (if not already), and removes it permanently.
+// - Right swipe: plays soft.wav, adds current strain to favorites and removes it permanently.
 // - Left swipe: plays hard.wav and moves current strain to the end of the lineup.
 function swipe(direction) {
   if (!canSwipe()) return;
@@ -203,13 +205,12 @@ function getBuyURL(strainName) {
 }
 
 // Show the full profile view for a strain.
-// If strainArg is provided (from favorites), use it; otherwise, use the current strain.
+// If strainArg is provided (e.g., from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
   if (!canSwipe()) return;
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
   if (!strain) return;
   
-  // Initialize current image index if not set.
   if (typeof strain.currentImageIndex === "undefined") {
     strain.currentImageIndex = 0;
   }
@@ -235,7 +236,7 @@ function showCurrentProfile(strainArg) {
     </div>
   `;
   
-  // Auto-close favorites view if open.
+  // Auto-close the favorites view if open.
   document.getElementById("favorites-view").classList.add("hidden");
   profileView.classList.remove("hidden");
   
@@ -247,7 +248,7 @@ function showCurrentProfile(strainArg) {
 }
 
 // Show the favorites list view.
-// Clicking a favorite strain plays soft.wav and opens its profile, auto-closing the favorites view.
+// Clicking a favorite plays soft.wav and opens its profile (auto-closing the favorites view).
 function showFavorites() {
   const favView = document.getElementById("favorites-view");
   const favList = document.getElementById("favorites-list");
@@ -278,9 +279,9 @@ function showFavorites() {
 // Chatbot Integration
 // ==================
 
-// Chat conversation history (for ChatGPT-4).
+// Chat conversation history for ChatGPT-4.
 let chatHistory = [
-  { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When a product is suggested, include the product name preceded by 'Suggesting:'." }
+  { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When suggesting, include 'Suggesting:' followed by the product name." }
 ];
 
 // Toggle the chat widget visibility.
@@ -293,7 +294,7 @@ function toggleChat() {
   }
 }
 
-// Append a message to the chat messages area.
+// Append a message to the chat window.
 function appendChatMessage(sender, text) {
   const chatMessages = document.getElementById("chat-messages");
   const msgDiv = document.createElement("div");
@@ -312,7 +313,6 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   chatHistory.push({ role: "user", content: message });
   inputField.value = "";
   
-  // Send chat history to your backend endpoint.
   try {
     const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev', {
       method: "POST",
@@ -324,7 +324,6 @@ document.getElementById("chat-send").addEventListener("click", async () => {
     appendChatMessage("Chatbot", reply);
     chatHistory.push({ role: "assistant", content: reply });
     
-    // If the chatbot's reply contains a suggestion, e.g., "Suggesting: OG Kush", extract and open that product's profile.
     if (reply.toLowerCase().includes("suggesting:")) {
       const product = reply.split("suggesting:")[1].trim();
       openProductProfile(product);
