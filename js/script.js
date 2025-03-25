@@ -140,7 +140,7 @@ function loadStrainCard() {
   `;
 }
 
-// If the lineup is empty, repopulate it with strains not favorited.
+// Repopulate the lineup with strains not yet favorited if empty.
 function repopulateLineup() {
   const remaining = strains.filter(s => !favorites.find(f => f.id === s.id));
   if (remaining.length > 0) {
@@ -162,8 +162,8 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: plays soft.wav, adds the current strain to favorites (if not already), and removes it permanently.
-// - Left swipe: plays hard.wav and moves the current strain to the end of the lineup.
+// - Right swipe: plays soft.wav, adds current strain to favorites (if not already), and removes it permanently.
+// - Left swipe: plays hard.wav and moves current strain to the end of the lineup.
 function swipe(direction) {
   if (!canSwipe()) return;
   if (lineup.length === 0) return;
@@ -203,7 +203,7 @@ function getBuyURL(strainName) {
 }
 
 // Show the full profile view for a strain.
-// If strainArg is provided (e.g. from favorites), use it; otherwise, use the current strain.
+// If strainArg is provided (from favorites), use it; otherwise, use the current strain.
 function showCurrentProfile(strainArg) {
   if (!canSwipe()) return;
   let strain = strainArg || (lineup.length > 0 ? lineup[0] : null);
@@ -314,7 +314,7 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   
   // Send chat history to your backend endpoint.
   try {
-    const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev/', {
+    const response = await fetch('https://d8329534-949d-4683-992e-0381aef6592d-00-zviq92v6hqkn.worf.replit.dev', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: chatHistory })
@@ -324,7 +324,7 @@ document.getElementById("chat-send").addEventListener("click", async () => {
     appendChatMessage("Chatbot", reply);
     chatHistory.push({ role: "assistant", content: reply });
     
-    // If the chatbot's reply contains a suggestion, e.g. "Suggesting: OG Kush", extract and open that product's profile.
+    // If the chatbot's reply contains a suggestion, e.g., "Suggesting: OG Kush", extract and open that product's profile.
     if (reply.toLowerCase().includes("suggesting:")) {
       const product = reply.split("suggesting:")[1].trim();
       openProductProfile(product);
