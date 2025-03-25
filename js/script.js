@@ -110,7 +110,7 @@ const strains = [
   }
 ];
 
-// Global arrays for the swipe lineup and favorites.
+// Global arrays for swipe lineup and favorites.
 let favorites = [];
 let lineup = [...strains];
 lineup.sort(() => Math.random() - 0.5);
@@ -161,7 +161,7 @@ function showNextStrain() {
 }
 
 // Swipe function:
-// - Right swipe: plays soft.wav, adds current strain to favorites, removes it permanently.
+// - Right swipe: plays soft.wav, adds current strain to favorites (if not already), and removes it permanently.
 // - Left swipe: plays hard.wav and moves current strain to the end of the lineup.
 function swipe(direction) {
   if (!canSwipe()) return;
@@ -275,22 +275,18 @@ function showFavorites() {
 // Chatbot Integration
 // ==================
 
-// Chat history for ChatGPT-4.
+// Chat conversation history for ChatGPT-4.
 let chatHistory = [
   { role: "system", content: "You are a helpful chatbot that asks the user what tastes they like and suggests a product from GrowSpace. When suggesting, include 'Suggesting:' followed by the product name." }
 ];
 
-// Toggle chat widget visibility.
+// Toggle the chat widget visibility.
 function toggleChat() {
   const chatWidget = document.getElementById("chat-widget");
-  if (chatWidget.classList.contains("hidden")) {
-    chatWidget.classList.remove("hidden");
-  } else {
-    chatWidget.classList.add("hidden");
-  }
+  chatWidget.classList.toggle("hidden");
 }
 
-// Append message to chat window.
+// Append a message to the chat window.
 function appendChatMessage(sender, text) {
   const chatMessages = document.getElementById("chat-messages");
   const msgDiv = document.createElement("div");
@@ -331,7 +327,7 @@ document.getElementById("chat-send").addEventListener("click", async () => {
   }
 });
 
-// Open product profile based on suggested product name.
+// Open product profile based on a suggested product name.
 function openProductProfile(productName) {
   const strain = strains.find(s => s.name.toLowerCase() === productName.toLowerCase());
   if (strain) {
@@ -341,7 +337,7 @@ function openProductProfile(productName) {
 }
 
 // ==================
-// Attach Main UI Event Listeners
+// Attach Event Listeners for Main UI
 // ==================
 document.getElementById("swipeLeft").addEventListener("click", () => {
   swipe("left");
